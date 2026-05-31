@@ -1,0 +1,48 @@
+{
+  "name": "موهبتي مستقبلي",
+  "short_name": "موهبتي",
+  "description": "مركز رعاية الموهوبين — ولاية المدية، الجزائر",
+  "start_url": "/Mawhibati-/",
+  "scope": "/Mawhibati-/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#6366f1",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "categories": ["education", "kids"],
+  "shortcuts": [
+    {
+      "name": "البوابات العلمية",
+      "url": "/Mawhibati-/portals.html",
+      "description": "استكشف البوابات العلمية"
+    },
+    {
+      "name": "تسجيل طفلك",
+      "url": "/Mawhibati-/index.html#register",
+      "description": "سجّل طفلك الآن"
+    }
+  ]
+}
