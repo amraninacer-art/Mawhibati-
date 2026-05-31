@@ -1,0 +1,72 @@
+{
+  "id": "/Mawhibati-/",
+  "name": "موهبتي مستقبلي",
+  "short_name": "موهبتي",
+  "description": "مركز رعاية الموهوبين — ولاية المدية، الجزائر",
+  "start_url": "/Mawhibati-/",
+  "scope": "/Mawhibati-/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f172a",
+  "theme_color": "#6366f1",
+  "lang": "ar",
+  "dir": "rtl",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "https://amraninacer-art.github.io/Mawhibati-/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://amraninacer-art.github.io/Mawhibati-/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "https://amraninacer-art.github.io/Mawhibati-/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://amraninacer-art.github.io/Mawhibati-/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://amraninacer-art.github.io/Mawhibati-/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "categories": ["education", "kids"],
+  "shortcuts": [
+    {
+      "name": "البوابات العلمية",
+      "url": "/Mawhibati-/portals.html",
+      "description": "استكشف البوابات العلمية",
+      "icons": [{ 
+        "src": "https://amraninacer-art.github.io/Mawhibati-/icon-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      }]
+    },
+    {
+      "name": "تسجيل طفلك",
+      "url": "/Mawhibati-/index.html#register",
+      "description": "سجّل طفلك الآن",
+      "icons": [{ 
+        "src": "https://amraninacer-art.github.io/Mawhibati-/icon-192x192.png",
+        "sizes": "192x192",
+        "type": "image/png"
+      }]
+    }
+  ]
+}
