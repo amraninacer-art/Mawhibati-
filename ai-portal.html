@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Portal System | مساعد الذكاء الاصطناعي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;font-size:16px;-webkit-font-smoothing:antialiased;}
+
+:root{
+  --primary-500:#6366f1;--primary-400:#818cf8;--primary-600:#4f46e5;
+  --cyan-400:#22d3ee;--cyan-500:#06b6d4;
+  --purple-500:#8b5cf6;--purple-400:#a78bfa;
+  --ink:#0a0e1a;--ink2:#111827;--ink3:#1e293b;--ink4:#334155;--ink5:#475569;
+  --text:#f1f5f9;--text-soft:#cbd5e1;--text-muted:#64748b;
+  --border:rgba(148,163,184,0.1);
+  --glass-bg:rgba(30,41,59,0.5);--glass-border:rgba(148,163,184,0.15);
+  --glass-blur:blur(24px) saturate(1.4);
+  --green:#10b981;--amber:#f59e0b;--rose:#f43f5e;
+  --r:12px;--r-lg:16px;--r-xl:24px;
+  --ease:cubic-bezier(0.4,0,0.2,1);--spring:cubic-bezier(0.34,1.56,0.64,1);
+  --shadow-glow:0 0 40px rgba(99,102,241,0.12);
+}
+
+body{
+  font-family:'IBM Plex Sans Arabic','Inter',sans-serif;
+  background:var(--ink);color:var(--text);
+  overflow-x:hidden;direction:rtl;
+  line-height:1.6;transition:background 0.5s var(--ease),color 0.5s var(--ease);
+}
+h1,h2,h3,h4,h5{font-family:'Tajawal','Inter',sans-serif;line-height:1.2;font-weight:800;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;border:none;background:none;}
+::selection{background:rgba(99,102,241,0.2);color:var(--primary-400);}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--ink2);}
+::-webkit-scrollbar-thumb{background:var(--ink5);border-radius:99px;}
+::-webkit-scrollbar-thumb:hover{background:var(--primary-500);}
+
+/* Ambient background */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 10%,rgba(99,102,241,0.06) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%,rgba(6,182,212,0.04) 0%,transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%,rgba(139,92,246,0.03) 0%,transparent 60%);
+}
+
+/* Top Bar */
+.top-bar{
+  position:fixed;top:0;right:0;left:0;z-index:100;
+  background:var(--glass-bg);backdrop-filter:var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
+  border-bottom:1px solid var(--glass-border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 24px;height:56px;
+}
+.top-logo{display:flex;align-items:center;gap:10px;}
+.top-logo-mark{
+  width:34px;height:34px;border:1.5px solid var(--primary-500);
+  display:flex;align-items:center;justify-content:center;border-radius:9px;
+  background:rgba(99,102,241,0.1);
+}
+.top-logo-mark svg{width:14px;height:14px;color:var(--primary-500);}
+.top-logo-name{font-family:'Tajawal',sans-serif;font-size:16px;font-weight:900;color:var(--text);}
+.top-logo-name span{color:var(--primary-500);}
+.top-actions{display:flex;align-items:center;gap:10px;}
+.btn-top{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 16px;border-radius:var(--r);font-size:12px;font-weight:600;
+  transition:all 0.25s var(--ease);color:var(--text-soft);
+  border:1px solid var(--border);background:transparent;
+}
+.btn-top:hover{border-color:var(--glass-border);color:var(--text);background:var(--ink3);}
+.btn-top svg{width:14px;height:14px;}
+
+/* Main Layout */
+.main-layout{
+  display:flex;height:100vh;padding-top:56px;
+  position:relative;z-index:1;
+}
+
+/* Avatar Panel (Left on RTL = visually right) */
+.avatar-panel{
+  width:45%;position:relative;
+  background:linear-gradient(180deg,var(--ink2) 0%,var(--ink) 100%);
+  border-left:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+.avatar-panel::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 50%,rgba(99,102,241,0.03) 0%,transparent 70%);
+  pointer-events:none;z-index:0;
+}
+#avatarCanvas{
+  width:100%;flex:1;
+  position:relative;z-index:1;
+}
+.avatar-info{
+  position:absolute;bottom:20px;right:20px;left:20px;
+  display:flex;align-items:center;justify-content:center;
+  gap:12px;z-index:2;
+}
+.avatar-status{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 16px;border-radius:99px;
+  background:var(--glass-bg);backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border:1px solid var(--glass-border);
+}
+.status-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 8px rgba(16,185,129,0.5);
+  animation:statusPulse 2s ease-in-out infinite;
+}
+@keyframes statusPulse{
+  0%,100%{opacity:1;transform:scale(1);}
+  50%{opacity:0.6;transform:scale(0.85);}
+}
+.status-text{font-size:12px;font-weight:600;color:var(--text-soft);}
+
+/* Chat Panel (Right on RTL = visually left) */
+.chat-panel{
+  width:55%;display:flex;flex-direction:column;
+  background:var(--ink);
+  position:relative;
+}
+.chat-header{
+  padding:16px 24px;border-bottom:1px solid var(--border);
+  background:var(--glass-bg);backdrop-filter:blur(20px) saturate(1.3);
+  -webkit-backdrop-filter:blur(20px) saturate(1.3);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.chat-header-left{display:flex;align-items:center;gap:12px;}
+.chat-avatar{
+  width:42px;height:42px;border-radius:50%;
+  background:linear-gradient(135deg,var(--primary-600),var(--cyan-500));
+  display:flex;align-items:center;justify-content:center;
+  border:2px solid rgba(99,102,241,0.3);
+  box-shadow:0 0 20px rgba(99,102,241,0.2);
+}
+.chat-avatar svg{width:20px;height:20px;color:#fff;}
+.chat-title{font-size:16px;font-weight:800;color:var(--text);}
+.chat-subtitle{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.chat-header-right{display:flex;align-items:center;gap:8px;}
+
+/* Messages Area */
+.messages-area{
+  flex:1;overflow-y:auto;padding:24px;
+  display:flex;flex-direction:column;gap:16px;
+}
+.welcome-msg{
+  text-align:center;padding:32px 20px;
+  background:var(--glass-bg);backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border:1px solid var(--glass-border);border-radius:var(--r-xl);
+  margin-bottom:8px;
+}
+.welcome-icon{
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,var(--primary-500),var(--cyan-500));
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 16px;
+  box-shadow:0 0 30px rgba(99,102,241,0.2);
+}
+.welcome-icon svg{width:26px;height:26px;color:#fff;}
+.welcome-title{font-family:'Tajawal',sans-serif;font-size:20px;font-weight:900;margin-bottom:8px;}
+.welcome-desc{font-size:13px;color:var(--text-muted);line-height:1.8;font-weight:300;max-width:400px;margin:0 auto;}
+
+/* Message Bubbles */
+.msg-row{display:flex;flex-direction:column;gap:4px;}
+.msg-row.user{align-items:flex-start;}
+.msg-row.ai{align-items:flex-end;}
+.msg-bubble{
+  max-width:80%;padding:14px 18px;border-radius:18px;
+  font-size:14px;line-height:1.8;word-wrap:break-word;
+  animation:msgIn 0.35s var(--ease) both;
+}
+@keyframes msgIn{
+  from{opacity:0;transform:translateY(10px) scale(0.96);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+.msg-bubble.user{
+  background:linear-gradient(135deg,var(--primary-600),var(--primary-500));
+  color:#fff;border-bottom-right-radius:4px;
+  align-self:flex-start;
+}
+.msg-bubble.ai{
+  background:var(--ink3);border:1px solid var(--border);
+  color:var(--text);border-bottom-left-radius:4px;
+  align-self:flex-end;
+}
+.msg-time{font-size:10px;color:var(--text-muted);opacity:0.7;}
+.msg-row.user .msg-time{text-align:left;padding-left:8px;}
+.msg-row.ai .msg-time{text-align:right;padding-right:8px;}
+
+/* Typing Indicator */
+.typing-indicator{
+  display:flex;align-items:center;gap:6px;
+  padding:14px 18px;background:var(--ink3);
+  border:1px solid var(--border);border-radius:18px;
+  border-bottom-left-radius:4px;
+  align-self:flex-end;max-width:100px;
+  animation:msgIn 0.3s var(--ease) both;
+}
+.typing-indicator span{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--primary-400);
+  animation:typingBounce 1.2s ease-in-out infinite;
+}
+.typing-indicator span:nth-child(2){animation-delay:0.15s;}
+.typing-indicator span:nth-child(3){animation-delay:0.3s;}
+@keyframes typingBounce{
+  0%,60%,100%{transform:translateY(0);}
+  30%{transform:translateY(-6px);}
+}
+
+/* Input Area */
+.input-area{
+  padding:16px 24px;border-top:1px solid var(--border);
+  background:var(--glass-bg);backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+}
+.input-wrap{
+  display:flex;align-items:flex-end;gap:10px;
+  background:var(--ink3);border:1px solid var(--border);
+  border-radius:var(--r-xl);padding:8px 12px;
+  transition:border-color 0.3s,box-shadow 0.3s;
+}
+.input-wrap:focus-within{
+  border-color:rgba(99,102,241,0.4);
+  box-shadow:0 0 0 3px rgba(99,102,241,0.08);
+}
+.chat-input{
+  flex:1;background:transparent;border:none;
+  color:var(--text);font-family:'IBM Plex Sans Arabic',sans-serif;
+  font-size:14px;outline:none;resize:none;
+  max-height:120px;padding:8px;
+  line-height:1.7;
+}
+.chat-input::placeholder{color:var(--text-muted);}
+.input-btns{display:flex;align-items:center;gap:6px;}
+.btn-input{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text-muted);transition:all 0.25s;
+  background:transparent;border:none;cursor:pointer;
+}
+.btn-input:hover{color:var(--text);background:var(--ink4);}
+.btn-input svg{width:18px;height:18px;}
+.btn-input.send{
+  background:linear-gradient(135deg,var(--primary-600),var(--primary-500));
+  color:#fff;box-shadow:0 2px 8px rgba(99,102,241,0.3);
+}
+.btn-input.send:hover{
+  background:linear-gradient(135deg,var(--primary-500),var(--primary-400));
+  transform:scale(1.05);
+}
+.btn-input.send:active{transform:scale(0.95);}
+.btn-input.mic.active{
+  background:rgba(244,63,94,0.15);color:var(--rose);
+  animation:micPulse 1.5s ease-in-out infinite;
+}
+@keyframes micPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(244,63,94,0.2);}
+  50%{box-shadow:0 0 0 8px rgba(244,63,94,0);}
+}
+
+/* Voice Wave Animation */
+.voice-wave{
+  display:none;align-items:center;gap:3px;
+  padding:0 12px;height:36px;
+}
+.voice-wave.active{display:flex;}
+.voice-wave span{
+  width:3px;border-radius:2px;
+  background:linear-gradient(to top,var(--rose),var(--primary-500));
+  animation:waveAnim 0.8s ease-in-out infinite;
+}
+.voice-wave span:nth-child(1){height:12px;animation-delay:0s;}
+.voice-wave span:nth-child(2){height:20px;animation-delay:0.1s;}
+.voice-wave span:nth-child(3){height:16px;animation-delay:0.2s;}
+.voice-wave span:nth-child(4){height:24px;animation-delay:0.05s;}
+.voice-wave span:nth-child(5){height:14px;animation-delay:0.15s;}
+@keyframes waveAnim{
+  0%,100%{transform:scaleY(0.6);}
+  50%{transform:scaleY(1);}
+}
+
+/* Suggestion Chips */
+.suggestions{
+  display:flex;flex-wrap:wrap;gap:8px;
+  padding:0 24px 12px;
+}
+.suggestion-chip{
+  padding:7px 14px;border-radius:99px;
+  background:var(--ink3);border:1px solid var(--border);
+  color:var(--text-muted);font-size:12px;font-weight:500;
+  cursor:pointer;transition:all 0.25s;font-family:inherit;
+}
+.suggestion-chip:hover{
+  border-color:var(--primary-500);color:var(--primary-400);
+  background:rgba(99,102,241,0.08);
+}
+
+/* Loading Overlay */
+.loading-overlay{
+  position:fixed;inset:0;background:rgba(10,14,26,0.95);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:9999;gap:20px;
+}
+.loading-spinner{
+  width:48px;height:48px;border-radius:50%;
+  border:2px solid var(--ink4);
+  border-top-color:var(--primary-500);
+  animation:spin 1s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-family:'Tajawal',sans-serif;font-size:18px;font-weight:700;color:var(--primary-400);}
+.loading-sub{font-size:11px;color:var(--text-muted);letter-spacing:2px;}
+
+/* Responsive */
+@media(max-width:900px){
+  .main-layout{flex-direction:column;height:auto;min-height:100vh;}
+  .avatar-panel{width:100%;height:40vh;min-height:280px;border-left:none;border-bottom:1px solid var(--border);}
+  .chat-panel{width:100%;height:calc(100vh - 56px - 40vh);min-height:400px;}
+  #avatarCanvas{height:100%;}
+}
+@media(max-width:480px){
+  .top-bar{padding:8px 12px;}
+  .chat-header{padding:12px 16px;}
+  .messages-area{padding:16px;}
+  .input-area{padding:12px 16px;}
+  .suggestions{padding:0 16px 8px;}
+  .avatar-panel{height:35vh;min-height:240px;}
+  .chat-panel{height:calc(100vh - 56px - 35vh);}
+}
+
+/* Fade animations */
+.fade-in{animation:fadeIn 0.5s ease both;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+</style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div class="loading-overlay" id="loader">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">AI Portal System</div>
+  <div class="loading-sub">جارِ التحميل...</div>
+</div>
+
+<!-- Top Bar -->
+<div class="top-bar">
+  <div class="top-logo">
+    <div class="top-logo-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+    </div>
+    <div class="top-logo-name"><span>AI</span> Portal System</div>
+  </div>
+  <div class="top-actions">
+    <button class="btn-top" onclick="clearChat()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+      مسح المحادثة
+    </button>
+    <a href="index.html" class="btn-top">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      الرئيسية
+    </a>
+  </div>
+</div>
+
+<!-- Main Layout -->
+<div class="main-layout">
+
+  <!-- Avatar Panel -->
+  <div class="avatar-panel">
+    <div id="avatarCanvas"></div>
+    <div class="avatar-info">
+      <div class="avatar-status">
+        <div class="status-dot" id="statusDot"></div>
+        <span class="status-text" id="statusText">جاهز للمساعدة</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Panel -->
+  <div class="chat-panel">
+    <div class="chat-header">
+      <div class="chat-header-left">
+        <div class="chat-avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2a3 3 0 013 3v1H9V5a3 3 0 013-3z"/><path d="M7 8h10v2a5 5 0 01-10 0V8z"/><path d="M6 22v-3a3 3 0 013-3h6a3 3 0 013 3v3"/><circle cx="12" cy="14" r="2"/></svg>
+        </div>
+        <div>
+          <div class="chat-title">مساعد الذكاء الاصطناعي</div>
+          <div class="chat-subtitle">مساعد تعليمي ذكي متخصص</div>
+        </div>
+      </div>
+      <div class="chat-header-right">
+        <button class="btn-input" id="ttsToggle" onclick="toggleTTS()" title="تشغيل/إيقاف الصوت">
+          <svg id="ttsIconOn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+          <svg id="ttsIconOff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="messages-area" id="messagesArea">
+      <div class="welcome-msg">
+        <div class="welcome-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        </div>
+        <div class="welcome-title">أهلاً بك في AI Portal</div>
+        <div class="welcome-desc">
+          أنا مساعدك الذكي المتخصص في مجال التعليم ورعاية الموهوبين. 
+          يمكنك سؤالي عن أي موضوع، أو استخدام الميكروفون للتحدث مباشرة.
+        </div>
+      </div>
+    </div>
+
+    <!-- Suggestions -->
+    <div class="suggestions" id="suggestions">
+      <button class="suggestion-chip" onclick="sendQuickMsg('ما هو تعريف الموهبة؟')">ما هو تعريف الموهبة؟</button>
+      <button class="suggestion-chip" onclick="sendQuickMsg('كيف أكتشف موهبة طفلي؟')">كيف أكتشف موهبة طفلي؟</button>
+      <button class="suggestion-chip" onclick="sendQuickMsg('شرح نظرية الذكاءات المتعددة')">نظرية الذكاءات المتعددة</button>
+      <button class="suggestion-chip" onclick="sendQuickMsg('ما هي مراحل النمو العقلي؟')">مراحل النمو العقلي</button>
+    </div>
+
+    <!-- Input Area -->
+    <div class="input-area">
+      <div class="input-wrap">
+        <textarea class="chat-input" id="chatInput" placeholder="اكتب رسالتك هنا..." rows="1" onkeydown="handleKeyDown(event)"></textarea>
+        <div class="input-btns">
+          <div class="voice-wave" id="voiceWave">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <button class="btn-input mic" id="micBtn" onclick="toggleVoice()" title="تحويل الصوت إلى نص">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 013 3v7a3 3 0 01-6 0V4a3 3 0 013-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          </button>
+          <button class="btn-input send" onclick="sendMessage()" title="إرسال">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// AI PORTAL SYSTEM — PROFESSIONAL LEVEL
+// ═══════════════════════════════════════════
+
+// ── Three.js 3D Avatar ──
+let scene, camera, renderer, avatarGroup, head, body, neck, leftArm, rightArm, leftLeg, rightLeg;
+let mouth, eyeLeft, eyeRight, eyeLeftWhite, eyeRightWhite;
+let isSpeaking = false;
+let idleTime = 0;
+let speechIntensity = 0;
+let mouseX = 0, mouseY = 0;
+let targetHeadRotX = 0, targetHeadRotY = 0;
+let particlesMesh;
+
+function initThreeJS() {
+  const container = document.getElementById('avatarCanvas');
+  if (!container) return;
+
+  const w = container.clientWidth || container.offsetWidth || 400;
+  const h = container.clientHeight || container.offsetHeight || 400;
+
+  // Scene
+  scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x0a0e1a, 0.02);
+
+  // Camera
+  camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100);
+  camera.position.set(0, 1.5, 4.5);
+  camera.lookAt(0, 1, 0);
+
+  // Renderer
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(w, h);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.2;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  container.appendChild(renderer.domElement);
+
+  // ── Lighting (Professional) ──
+  const ambientLight = new THREE.AmbientLight(0x6366f1, 0.4);
+  scene.add(ambientLight);
+
+  const fillLight = new THREE.PointLight(0x818cf8, 1.2, 10);
+  fillLight.position.set(-2, 3, 2);
+  scene.add(fillLight);
+
+  const keyLight = new THREE.DirectionalLight(0xa5b4fc, 1.5);
+  keyLight.position.set(2, 4, 3);
+  keyLight.castShadow = true;
+  keyLight.shadow.mapSize.width = 1024;
+  keyLight.shadow.mapSize.height = 1024;
+  scene.add(keyLight);
+
+  const rimLight = new THREE.SpotLight(0x06b6d4, 2, 10, Math.PI / 6, 0.5);
+  rimLight.position.set(0, 3, -3);
+  rimLight.lookAt(0, 1, 0);
+  scene.add(rimLight);
+
+  const bottomLight = new THREE.PointLight(0x8b5cf6, 0.6, 8);
+  bottomLight.position.set(0, -1, 2);
+  scene.add(bottomLight);
+
+  // ── Procedural Humanoid Avatar ──
+  avatarGroup = new THREE.Group();
+
+  // Materials
+  const bodyMat = new THREE.MeshStandardMaterial({
+    color: 0x6366f1,
+    metalness: 0.3,
+    roughness: 0.4,
+    emissive: 0x1e1b4b,
+    emissiveIntensity: 0.1
+  });
+  const jointMat = new THREE.MeshStandardMaterial({
+    color: 0x4f46e5,
+    metalness: 0.5,
+    roughness: 0.3
+  });
+  const headMat = new THREE.MeshStandardMaterial({
+    color: 0x818cf8,
+    metalness: 0.2,
+    roughness: 0.3,
+    emissive: 0x312e81,
+    emissiveIntensity: 0.15
+  });
+  const eyeMat = new THREE.MeshStandardMaterial({
+    color: 0x22d3ee,
+    emissive: 0x06b6d4,
+    emissiveIntensity: 1.2,
+    metalness: 0.8,
+    roughness: 0.1
+  });
+  const eyeWhiteMat = new THREE.MeshStandardMaterial({
+    color: 0xeef2ff,
+    emissive: 0x818cf8,
+    emissiveIntensity: 0.3,
+    metalness: 0.1,
+    roughness: 0.5
+  });
+  const mouthMat = new THREE.MeshStandardMaterial({
+    color: 0x0f172a,
+    emissive: 0x22d3ee,
+    emissiveIntensity: 0.5
+  });
+
+  // Torso
+  const torsoGeo = new THREE.CapsuleGeometry(0.35, 0.7, 8, 16);
+  body = new THREE.Mesh(torsoGeo, bodyMat);
+  body.position.y = 1.1;
+  body.castShadow = true;
+  avatarGroup.add(body);
+
+  // Neck
+  const neckGeo = new THREE.CylinderGeometry(0.12, 0.15, 0.2, 12);
+  neck = new THREE.Mesh(neckGeo, jointMat);
+  neck.position.y = 1.6;
+  avatarGroup.add(neck);
+
+  // Head Group (for rotation)
+  head = new THREE.Group();
+  head.position.y = 1.85;
+
+  // Head sphere
+  const headGeo = new THREE.SphereGeometry(0.28, 32, 32);
+  const headMesh = new THREE.Mesh(headGeo, headMat);
+  headMesh.castShadow = true;
+  head.add(headMesh);
+
+  // Face plate
+  const faceGeo = new THREE.SphereGeometry(0.22, 32, 16, 0, Math.PI * 2, 0, Math.PI * 0.35);
+  const faceMat = new THREE.MeshStandardMaterial({
+    color: 0xa5b4fc,
+    metalness: 0.1,
+    roughness: 0.5,
+    transparent: true,
+    opacity: 0.9
+  });
+  const faceMesh = new THREE.Mesh(faceGeo, faceMat);
+  faceMesh.rotation.x = -Math.PI / 2;
+  faceMesh.position.z = 0.08;
+  faceMesh.position.y = -0.02;
+  head.add(faceMesh);
+
+  // Eyes (white background)
+  const eyeWhiteGeo = new THREE.SphereGeometry(0.07, 16, 16);
+  eyeLeftWhite = new THREE.Mesh(eyeWhiteGeo, eyeWhiteMat);
+  eyeLeftWhite.position.set(-0.1, 0.03, 0.22);
+  head.add(eyeLeftWhite);
+
+  eyeRightWhite = new THREE.Mesh(eyeWhiteGeo, eyeWhiteMat);
+  eyeRightWhite.position.set(0.1, 0.03, 0.22);
+  head.add(eyeRightWhite);
+
+  // Pupils (glowing)
+  const pupilGeo = new THREE.SphereGeometry(0.04, 16, 16);
+  eyeLeft = new THREE.Mesh(pupilGeo, eyeMat);
+  eyeLeft.position.set(-0.1, 0.03, 0.26);
+  head.add(eyeLeft);
+
+  eyeRight = new THREE.Mesh(pupilGeo, eyeMat);
+  eyeRight.position.set(0.1, 0.03, 0.26);
+  head.add(eyeRight);
+
+  // Mouth (for lip sync)
+  const mouthGeo = new THREE.BoxGeometry(0.12, 0.02, 0.02);
+  mouth = new THREE.Mesh(mouthGeo, mouthMat);
+  mouth.position.set(0, -0.1, 0.26);
+  head.add(mouth);
+
+  // Head ring (decorative)
+  const ringGeo = new THREE.TorusGeometry(0.3, 0.015, 8, 32);
+  const ringMat = new THREE.MeshStandardMaterial({
+    color: 0x22d3ee,
+    emissive: 0x06b6d4,
+    emissiveIntensity: 0.8,
+    metalness: 0.9,
+    roughness: 0.1
+  });
+  const headRing = new THREE.Mesh(ringGeo, ringMat);
+  headRing.rotation.x = Math.PI / 2;
+  headRing.position.y = 0.05;
+  head.add(headRing);
+
+  // Antenna
+  const antStemGeo = new THREE.CylinderGeometry(0.015, 0.015, 0.25, 8);
+  const antStem = new THREE.Mesh(antStemGeo, ringMat);
+  antStem.position.set(0, 0.4, 0);
+  head.add(antStem);
+
+  const antBallGeo = new THREE.SphereGeometry(0.04, 12, 12);
+  const antBall = new THREE.Mesh(antBallGeo, ringMat);
+  antBall.position.set(0, 0.55, 0);
+  head.add(antBall);
+
+  avatarGroup.add(head);
+
+  // Shoulders
+  const shoulderGeo = new THREE.SphereGeometry(0.16, 16, 16);
+  const leftShoulder = new THREE.Mesh(shoulderGeo, jointMat);
+  leftShoulder.position.set(-0.42, 1.4, 0);
+  avatarGroup.add(leftShoulder);
+
+  const rightShoulder = new THREE.Mesh(shoulderGeo, jointMat);
+  rightShoulder.position.set(0.42, 1.4, 0);
+  avatarGroup.add(rightShoulder);
+
+  // Arms
+  const armGeo = new THREE.CapsuleGeometry(0.08, 0.45, 8, 12);
+  leftArm = new THREE.Mesh(armGeo, bodyMat);
+  leftArm.position.set(-0.42, 1.0, 0);
+  leftArm.castShadow = true;
+  avatarGroup.add(leftArm);
+
+  rightArm = new THREE.Mesh(armGeo, bodyMat);
+  rightArm.position.set(0.42, 1.0, 0);
+  rightArm.castShadow = true;
+  avatarGroup.add(rightArm);
+
+  // Hands
+  const handGeo = new THREE.SphereGeometry(0.1, 12, 12);
+  const leftHand = new THREE.Mesh(handGeo, jointMat);
+  leftHand.position.set(-0.42, 0.65, 0);
+  avatarGroup.add(leftHand);
+
+  const rightHand = new THREE.Mesh(handGeo, jointMat);
+  rightHand.position.set(0.42, 0.65, 0);
+  avatarGroup.add(rightHand);
+
+  // Hips
+  const hipGeo = new THREE.SphereGeometry(0.25, 16, 16);
+  const hip = new THREE.Mesh(hipGeo, jointMat);
+  hip.position.y = 0.65;
+  avatarGroup.add(hip);
+
+  // Legs
+  const legGeo = new THREE.CapsuleGeometry(0.1, 0.5, 8, 12);
+  leftLeg = new THREE.Mesh(legGeo, bodyMat);
+  leftLeg.position.set(-0.18, 0.3, 0);
+  leftLeg.castShadow = true;
+  avatarGroup.add(leftLeg);
+
+  rightLeg = new THREE.Mesh(legGeo, bodyMat);
+  rightLeg.position.set(0.18, 0.3, 0);
+  rightLeg.castShadow = true;
+  avatarGroup.add(rightLeg);
+
+  // Floating platform
+  const platformGeo = new THREE.CylinderGeometry(0.8, 0.9, 0.05, 32);
+  const platformMat = new THREE.MeshStandardMaterial({
+    color: 0x1e293b,
+    metalness: 0.8,
+    roughness: 0.2,
+    emissive: 0x6366f1,
+    emissiveIntensity: 0.1
+  });
+  const platform = new THREE.Mesh(platformGeo, platformMat);
+  platform.position.y = 0;
+  platform.receiveShadow = true;
+  avatarGroup.add(platform);
+
+  // Platform glow ring
+  const glowRingGeo = new THREE.TorusGeometry(0.85, 0.02, 8, 64);
+  const glowRing = new THREE.Mesh(glowRingGeo, ringMat);
+  glowRing.rotation.x = Math.PI / 2;
+  glowRing.position.y = 0.03;
+  avatarGroup.add(glowRing);
+
+  scene.add(avatarGroup);
+
+  // ── Floating Particles ──
+  const particlesCount = 60;
+  const posArray = new Float32Array(particlesCount * 3);
+  const sizesArray = new Float32Array(particlesCount);
+  for (let i = 0; i < particlesCount; i++) {
+    posArray[i * 3] = (Math.random() - 0.5) * 6;
+    posArray[i * 3 + 1] = Math.random() * 4;
+    posArray[i * 3 + 2] = (Math.random() - 0.5) * 4;
+    sizesArray[i] = Math.random() * 0.03 + 0.01;
+  }
+  const particlesGeo = new THREE.BufferGeometry();
+  particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+  particlesGeo.setAttribute('size', new THREE.BufferAttribute(sizesArray, 1));
+
+  const particlesMat = new THREE.PointsMaterial({
+    size: 0.04,
+    color: 0x818cf8,
+    transparent: true,
+    opacity: 0.6,
+    blending: THREE.AdditiveBlending,
+    sizeAttenuation: true
+  });
+  particlesMesh = new THREE.Points(particlesGeo, particlesMat);
+  scene.add(particlesMesh);
+
+  // Mouse tracking
+  container.addEventListener('mousemove', (e) => {
+    const rect = container.getBoundingClientRect();
+    mouseX = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+    mouseY = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+  });
+
+  // Handle resize
+  window.addEventListener('resize', () => {
+    const cw = container.clientWidth || 400;
+    const ch = container.clientHeight || 400;
+    camera.aspect = cw / ch;
+    camera.updateProjectionMatrix();
+    renderer.setSize(cw, ch);
+  });
+
+  // Start animation
+  animate();
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  idleTime += 0.015;
+
+  if (!avatarGroup) return;
+
+  // ── Idle Animation: Breathing ──
+  const breath = Math.sin(idleTime * 1.5) * 0.015;
+  body.scale.y = 1 + breath;
+  body.position.y = 1.1 + breath * 0.5;
+  neck.position.y = 1.6 + breath * 0.5;
+  head.position.y = 1.85 + breath * 0.5;
+
+  // ── Idle Animation: Floating ──
+  avatarGroup.position.y = Math.sin(idleTime * 0.8) * 0.05;
+
+  // ── Head Tracking (smooth) ──
+  targetHeadRotY = mouseX * -0.4;
+  targetHeadRotX = mouseY * 0.25;
+  head.rotation.y += (targetHeadRotY - head.rotation.y) * 0.05;
+  head.rotation.x += (targetHeadRotX - head.rotation.x) * 0.05;
+
+  // ── Idle: Subtle arm sway ──
+  leftArm.rotation.z = Math.sin(idleTime) * 0.03 + 0.05;
+  rightArm.rotation.z = -Math.sin(idleTime + 1) * 0.03 - 0.05;
+
+  // ── Speaking Animation ──
+  if (isSpeaking) {
+    speechIntensity = Math.min(speechIntensity + 0.05, 1);
+  } else {
+    speechIntensity = Math.max(speechIntensity - 0.03, 0);
+  }
+
+  if (speechIntensity > 0) {
+    // Mouth movement (lip sync simulation)
+    const talkSpeed = 12;
+    const mouthOpen = (Math.sin(idleTime * talkSpeed) * 0.5 + 0.5) * speechIntensity;
+    mouth.scale.y = 1 + mouthOpen * 3;
+    mouth.position.y = -0.1 - mouthOpen * 0.02;
+
+    // Head nod when speaking
+    head.rotation.x += Math.sin(idleTime * 6) * 0.02 * speechIntensity;
+
+    // Body subtle movement
+    body.rotation.y = Math.sin(idleTime * 3) * 0.03 * speechIntensity;
+
+    // Eye glow intensify
+    eyeLeft.material.emissiveIntensity = 1.2 + mouthOpen * 0.8;
+    eyeRight.material.emissiveIntensity = 1.2 + mouthOpen * 0.8;
+
+    // Arm gestures
+    leftArm.rotation.x = -Math.sin(idleTime * 4) * 0.15 * speechIntensity;
+    rightArm.rotation.x = Math.sin(idleTime * 4 + 0.5) * 0.15 * speechIntensity;
+  } else {
+    // Reset mouth
+    mouth.scale.y = 1;
+    mouth.position.y = -0.1;
+    body.rotation.y = 0;
+    leftArm.rotation.x = 0;
+    rightArm.rotation.x = 0;
+    eyeLeft.material.emissiveIntensity = 1.2;
+    eyeRight.material.emissiveIntensity = 1.2;
+  }
+
+  // ── Particles Animation ──
+  if (particlesMesh) {
+    particlesMesh.rotation.y += 0.001;
+    const positions = particlesMesh.geometry.attributes.position.array;
+    for (let i = 0; i < positions.length / 3; i++) {
+      positions[i * 3 + 1] += Math.sin(idleTime + i) * 0.001;
+      if (positions[i * 3 + 1] > 4) positions[i * 3 + 1] = 0;
+    }
+    particlesMesh.geometry.attributes.position.needsUpdate = true;
+  }
+
+  // ── Platform glow pulse ──
+  const glowPulse = 0.8 + Math.sin(idleTime * 2) * 0.2;
+  avatarGroup.children.forEach(child => {
+    if (child.geometry && child.geometry.type === 'TorusGeometry' && child.position.y < 0.1) {
+      child.material.emissiveIntensity = glowPulse;
+      child.rotation.z += 0.005;
+    }
+  });
+
+  renderer.render(scene, camera);
+}
+
+// ── Trigger speaking state ──
+function setSpeaking(state) {
+  isSpeaking = state;
+  const dot = document.getElementById('statusDot');
+  const txt = document.getElementById('statusText');
+  if (state) {
+    dot.style.background = 'var(--primary-500)';
+    dot.style.boxShadow = '0 0 12px rgba(99,102,241,0.6)';
+    txt.textContent = 'يتحدث...';
+  } else {
+    dot.style.background = 'var(--green)';
+    dot.style.boxShadow = '0 0 8px rgba(16,185,129,0.5)';
+    txt.textContent = 'جاهز للمساعدة';
+  }
+}
+
+// ═══════════════════════════════════════════
+// AI CHAT SYSTEM
+// ═══════════════════════════════════════════
+
+const messagesArea = document.getElementById('messagesArea');
+const chatInput = document.getElementById('chatInput');
+let isWaiting = false;
+
+// Auto-resize textarea
+chatInput.addEventListener('input', function() {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+
+function handleKeyDown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function sendMessage() {
+  const text = chatInput.value.trim();
+  if (!text || isWaiting) return;
+
+  addMessage(text, 'user');
+  chatInput.value = '';
+  chatInput.style.height = 'auto';
+  hideSuggestions();
+
+  showTyping();
+  isWaiting = true;
+
+  // Simulate AI response delay
+  const delay = 800 + Math.random() * 1500;
+  setTimeout(() => {
+    removeTyping();
+    const response = generateResponse(text);
+    addMessage(response, 'ai');
+    speakText(response);
+    isWaiting = false;
+  }, delay);
+}
+
+function sendQuickMsg(text) {
+  chatInput.value = text;
+  sendMessage();
+}
+
+function addMessage(text, sender) {
+  const row = document.createElement('div');
+  row.className = 'msg-row ' + sender;
+
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble ' + sender;
+  bubble.textContent = text;
+
+  const time = document.createElement('div');
+  time.className = 'msg-time';
+  time.textContent = new Date().toLocaleTimeString('ar-DZ', { hour: '2-digit', minute: '2-digit' });
+
+  row.appendChild(bubble);
+  row.appendChild(time);
+  messagesArea.appendChild(row);
+  messagesArea.scrollTop = messagesArea.scrollHeight;
+}
+
+function showTyping() {
+  const indicator = document.createElement('div');
+  indicator.className = 'typing-indicator';
+  indicator.id = 'typingIndicator';
+  indicator.innerHTML = '<span></span><span></span><span></span>';
+  messagesArea.appendChild(indicator);
+  messagesArea.scrollTop = messagesArea.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+function hideSuggestions() {
+  const el = document.getElementById('suggestions');
+  if (el) el.style.display = 'none';
+}
+
+function clearChat() {
+  messagesArea.innerHTML = `
+    <div class="welcome-msg">
+      <div class="welcome-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+      </div>
+      <div class="welcome-title">أهلاً بك في AI Portal</div>
+      <div class="welcome-desc">أنا مساعدك الذكي المتخصص في مجال التعليم ورعاية الموهوبين. يمكنك سؤالي عن أي موضوع، أو استخدام الميكروفون للتحدث مباشرة.</div>
+    </div>
+  `;
+  document.getElementById('suggestions').style.display = 'flex';
+}
+
+// ═══════════════════════════════════════════
+// AI RESPONSE ENGINE (Simulated)
+// ═══════════════════════════════════════════
+
+function generateResponse(input) {
+  const text = input.toLowerCase();
+
+  // Arabic responses
+  if (text.includes('موهبة') || text.includes('موهوب') || text.includes('talent') || text.includes('gifted')) {
+    return 'الموهبة هي قدرة استثنائية تتجاوز المتوسط في مجال معين. وفقاً لتصنيف مارلاند، تشمل الموهبة قدرات فائقة في مجالات مثل الذكاء العام، والقدرات الأكاديمية، والتفكير الإبداعي، والقيادة، والفنون. هل تريد معرفة المزيد عن كيفية اكتشافها؟';
+  }
+  if (text.includes('اكتشاف') || text.includes('detect') || text.includes('identify')) {
+    return 'يمكن اكتشاف الموهبة من خلال عدة طرق: الملاحظة السلوكية اليومية، مقاييس الذكاء (مثل ستانفورد-بينيه)، اختبارات القدرات، تقييم الأداء الأكاديمي، وتقييم المعلمين. ننصح بالبدء بمراقبة اهتمامات الطفل الطبيعية ونمط تفكيره.';
+  }
+  if (text.includes('ذكاء') || text.includes('intelligence') || text.includes('gardner')) {
+    return 'نظرية الذكاءات المتعددة لـ هوارد غاردنر تُعرّف 9 أنواع من الذكاء: اللغوي، المنطقي-الرياضي، المكاني، الموسيقي، الحركي-الجسدي، الاجتماعي، الذاتي، الطبيعي، والوجودي. كل إنسان يمتلك مزيجاً فريداً من هذه الذكاءات. هل تريد تفاصيل عن نوع محدد؟';
+  }
+  if (text.includes('نمو') || text.includes('development') || text.includes('piaget')) {
+    return 'وفق نظرية بياجيه، يمر النمو العقلي بأربع مراحل: المرحلة الحسية-الحركية (0-2 سنة)، مرحلة ما قبل العمليات (2-7 سنوات)، مرحلة العمليات الملموسة (7-11 سنة)، ومرحلة العمليات المجردة (11+ سنة). كل مرحلة تبني على سابقتها وتفتح آفاقاً جديدة للتعلم.';
+  }
+  if (text.includes('تربية') || text.includes('تعليم') || text.includes('education') || text.includes('teach')) {
+    return 'التربية الفعالة للموهوبين تتطلب: التعليم المتمايز (Differentiation) حسب القدرات، الإثراء الأكاديمي (Enrichment) بتوسيع المحتوى، التسريع (Acceleration) حسب السرعة، والتوجيه الاجتماعي-العاطفي. الأهم هو خلق بيئة داعمة تحفز الإبداع والتفكير النقدي.';
+  }
+  if (text.includes('سلام') || text.includes('أهلا') || text.includes('مرحبا') || text.includes('hello') || text.includes('hi')) {
+    return 'أهلاً وسهلاً! أنا مساعدك الذكي المتخصص في علم النفس التربوي ورعاية الموهوبين. كيف يمكنني مساعدتك اليوم؟';
+  }
+  if (text.includes('رنزولي') || text.includes('renzulli')) {
+    return 'نموذج رنزولي (الثلاثة حلقات) يُعرّف الموهبة على أنها تقاطع ثلاثة عوامل: القدرة فوق المتوسط، والإبداع، والالتزام بالمهمة. هذا النموذج أثّر بعمق في برامج رعاية الموهوبين عالمياً.';
+  }
+  if (text.includes('تاننباوم') || text.includes('tannenbaum')) {
+    return 'نموذج تاننباوم (1983) يفرق بين الموهبة الكامنة (Potential) والموهبة الفعلية (Actualized). يُبرز أهمية العوامل البيئية والعوامل الشخصية والفرص في تحويل القدرات الكامنة إلى إنجازات حقيقية.';
+  }
+  if (text.includes('مشكلة') || text.includes('صعوبة') || text.includes('problem')) {
+    return 'الموهوبون قد يواجهون تحديات مثل: الملل في الصف، الضغط العالي للتفوق، صعوبات التكيف الاجتماعي، الكمالية المفرطة، والقلق. من المهم توفير دعم نفسي وتربوي متكامل يخاطب هذه الجوانب.';
+  }
+  if (text.includes('طفلي') || text.includes('ابني') || text.includes('my child')) {
+    return 'لكل طفل ميول وقدرات فريدة. يمكنك البدء بملاحظة: ما الأنشطة التي يقضي فيها وقتاً طويلاً بسعادة؟ ما الأسئلة التي يطرحها المتكررة؟ كيف يحل المشكلات؟ هل يتعلم بسرعة أكبر من أقرانه؟ هل يظهر تفكيراً نقدياً أو إبداعياً؟ شاركني ملاحظاتك وسأساعدك في التحليل.';
+  }
+  if (text.includes('اختبار') || text.includes('test') || text.includes('assessment')) {
+    return 'هناك عدة اختبارات معتمدة: مقياس ستانفورد-بينيه للذكاء، مقياس ويكسلر، اختبارات القدرات المعرفية (CogAT)، مقياس تورانس للتفكير الإبداعي، ومقاييس الر奉اء الأكاديمي. يجب إجراؤها بواسطة مختص معتمد.';
+  }
+  if (text.includes('برنامج') || text.includes('program') || text.includes('plan')) {
+    return 'البرامج الفردية (IEP) للموهوبين تشمل: تحديد الأهداف حسب نقاط القوة والضعف، أنشطة الإثراء في المجالات المفضلة، التسريع في المواد القوية، المشاريع البحثية، التوجيه المهني المبكر، والمتابعة الدورية. كل برنامج يُصمم حسب حالة الطفل الفريدة.';
+  }
+  if (text.includes('تشجيع') || text.includes('تحفيز') || text.includes('motivat')) {
+    return 'لتحفيز الطفل الموهوب: امنحه فرصاً للاختيار الحر، احتفل بالجهد لا فقط بالنتيجة، شجع التعلم التعاوني، اعرض له نماذج ملهمة، امنحه تحديات مناسبة لمستواه، وavoid الضغط المفرط. الأهم: اسمعه وافهم اهتماماته الحقيقية.';
+  }
+
+  // Default responses (random)
+  const defaults = [
+    'سؤال مهم! بناءً على معرفتي في علم النفس التربوي، يمكن القول إن كل طفل يحمل إمكانيات فريدة. يمكننا مناقشة هذا الموضوع بالتفصيل إذا أردت.',
+    'هذا موضوع غني جداً في الأدبيات العلمية. أود أن أشاركك بعض النماذج والنظريات المرتبطة بهذا المجال.',
+    'من منظور تربوي، هناك عدة أبعاد لهذا الموضوع. يمكنني مساعدتك في استكشافها خطوة بخطوة.',
+    'سؤال رائع! التعليم ورعاية الموهوبين مجال واسع يشمل نظريات متعددة وتطبيقات عملية. هل لديك جانب محدد تريد التعمق فيه؟',
+    'شكراً على سؤالك. أنا هنا لمساعدتك في أي موضوع يخص التعليم، النمو، والموهبة. يمكنك سؤالي بمزيد من التفصيل.'
+  ];
+  return defaults[Math.floor(Math.random() * defaults.length)];
+}
+
+// ═══════════════════════════════════════════
+// AI VOICE SYSTEM
+// ═══════════════════════════════════════════
+
+let recognition = null;
+let isListening = false;
+let ttsEnabled = true;
+let speechUtterance = null;
+
+// Initialize Speech Recognition (STT)
+function initVoice() {
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'ar-SA';
+
+    recognition.onstart = () => {
+      isListening = true;
+      document.getElementById('micBtn').classList.add('active');
+      document.getElementById('voiceWave').classList.add('active');
+      document.getElementById('chatInput').placeholder = 'يستمع... تحدث الآن';
+    };
+
+    recognition.onend = () => {
+      isListening = false;
+      document.getElementById('micBtn').classList.remove('active');
+      document.getElementById('voiceWave').classList.remove('active');
+      document.getElementById('chatInput').placeholder = 'اكتب رسالتك هنا...';
+    };
+
+    recognition.onresult = (event) => {
+      let finalTranscript = '';
+      let interimTranscript = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript;
+        } else {
+          interimTranscript += transcript;
+        }
+      }
+      if (finalTranscript) {
+        chatInput.value = finalTranscript;
+        setTimeout(() => sendMessage(), 300);
+      } else if (interimTranscript) {
+        chatInput.value = interimTranscript;
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.warn('Speech recognition error:', event.error);
+      isListening = false;
+      document.getElementById('micBtn').classList.remove('active');
+      document.getElementById('voiceWave').classList.remove('active');
+      if (event.error === 'not-allowed') {
+        alert('يرجى السماح بالوصول إلى الميكروفون لاستخدام خاصية التعرف على الصوت.');
+      }
+    };
+  } else {
+    document.getElementById('micBtn').style.display = 'none';
+    console.warn('Web Speech API not supported in this browser');
+  }
+}
+
+function toggleVoice() {
+  if (!recognition) {
+    alert('متصفحك لا يدعم خاصية التعرف على الصوت. جرب Chrome أو Edge.');
+    return;
+  }
+  if (isListening) {
+    recognition.stop();
+  } else {
+    // Detect language based on page direction
+    recognition.lang = document.dir === 'rtl' ? 'ar-SA' : 'en-US';
+    try {
+      recognition.start();
+    } catch (e) {
+      console.warn('Speech recognition error:', e);
+    }
+  }
+}
+
+// Text to Speech (TTS)
+function speakText(text) {
+  if (!ttsEnabled) return;
+  if (!('speechSynthesis' in window)) return;
+
+  // Stop any ongoing speech
+  window.speechSynthesis.cancel();
+
+  // Clean text for speech (remove extra spaces)
+  const cleanText = text.replace(/\s+/g, ' ').trim();
+  if (!cleanText) return;
+
+  speechUtterance = new SpeechSynthesisUtterance(cleanText);
+
+  // Set language
+  speechUtterance.lang = document.dir === 'rtl' ? 'ar-SA' : 'en-US';
+
+  // Try to find Arabic voice
+  const voices = window.speechSynthesis.getVoices();
+  const arVoice = voices.find(v => v.lang.includes('ar'));
+  if (arVoice) speechUtterance.voice = arVoice;
+
+  speechUtterance.rate = 0.95;
+  speechUtterance.pitch = 1.05;
+  speechUtterance.volume = 1;
+
+  speechUtterance.onstart = () => setSpeaking(true);
+  speechUtterance.onend = () => setSpeaking(false);
+  speechUtterance.onerror = () => setSpeaking(false);
+
+  window.speechSynthesis.speak(speechUtterance);
+}
+
+function toggleTTS() {
+  ttsEnabled = !ttsEnabled;
+  document.getElementById('ttsIconOn').style.display = ttsEnabled ? 'block' : 'none';
+  document.getElementById('ttsIconOff').style.display = ttsEnabled ? 'none' : 'block';
+  if (!ttsEnabled) {
+    window.speechSynthesis.cancel();
+    setSpeaking(false);
+  }
+}
+
+// Pre-load voices
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => {
+    window.speechSynthesis.getVoices();
+  };
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  initThreeJS();
+  initVoice();
+
+  // Hide loader
+  setTimeout(() => {
+    const loader = document.getElementById('loader');
+    if (loader) {
+      loader.style.opacity = '0';
+      loader.style.transition = 'opacity 0.6s ease';
+      setTimeout(() => loader.remove(), 600);
+    }
+  }, 2500);
+});
+</script>
+</body>
+</html>
