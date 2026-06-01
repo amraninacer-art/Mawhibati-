@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>وئام — مساعد موهبتي مستقبلي</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#04080f;--bg2:#080f1e;--bg3:#0e1829;
+  --purple:#7c3aed;--purple2:#5b21b6;--purple3:#a78bfa;--purple4:#c4b5fd;
+  --cyan:#06b6d4;--cyan2:#0891b2;--pink:#ec4899;--green:#10b981;--amber:#f59e0b;
+  --text:#f8fafc;--muted:#475569;--soft:#94a3b8;--softer:#cbd5e1;
+  --border:rgba(124,58,237,0.18);--border2:rgba(124,58,237,0.08);
+  --glass:rgba(8,15,30,0.8);
+  --r:12px;--r2:18px;--r3:24px;
+}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'IBM Plex Sans Arabic','Tajawal',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;}
+
+/* ══ NOISE OVERLAY ══ */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  opacity:0.4;
+}
+
+/* ══ BG ORBS ══ */
+.orb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0;}
+.orb1{width:800px;height:800px;background:radial-gradient(circle,rgba(124,58,237,0.1),transparent 70%);top:-300px;right:-200px;animation:orbDrift 22s ease-in-out infinite alternate;}
+.orb2{width:600px;height:600px;background:radial-gradient(circle,rgba(6,182,212,0.07),transparent 70%);bottom:-200px;left:-150px;animation:orbDrift 28s ease-in-out infinite alternate-reverse;}
+.orb3{width:400px;height:400px;background:radial-gradient(circle,rgba(236,72,153,0.05),transparent 70%);top:40%;left:30%;animation:orbDrift 18s ease-in-out infinite alternate;}
+@keyframes orbDrift{0%{transform:translate(0,0) scale(1);}100%{transform:translate(50px,-30px) scale(1.05);}}
+
+/* ══ GRID LINES ══ */
+.grid-lines{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(124,58,237,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,58,237,0.03) 1px, transparent 1px);
+  background-size:60px 60px;
+}
+
+/* ══ HEADER ══ */
+header{
+  position:relative;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 24px;
+  background:rgba(4,8,15,0.92);
+  backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo-icon{
+  width:38px;height:38px;border-radius:12px;
+  background:linear-gradient(135deg,var(--purple),var(--cyan));
+  display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;
+  box-shadow:0 0 24px rgba(124,58,237,0.5),0 0 0 1px rgba(124,58,237,0.3);
+}
+.logo-icon::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);
+}
+.logo-text{display:flex;flex-direction:column;line-height:1.1;}
+.logo-main{font-family:'Tajawal',sans-serif;font-size:15px;font-weight:800;color:var(--text);}
+.logo-main span{color:var(--purple4);}
+.logo-sub{font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;}
+.header-center{display:flex;align-items:center;gap:8px;}
+.model-badge{
+  display:flex;align-items:center;gap:6px;
+  font-size:10px;font-weight:600;letter-spacing:0.5px;
+  padding:5px 12px;border-radius:99px;
+  background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.25);
+  color:var(--purple4);
+}
+.model-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:statusPulse 2s infinite;}
+@keyframes statusPulse{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.5);}50%{box-shadow:0 0 0 5px rgba(16,185,129,0);}}
+.header-actions{display:flex;align-items:center;gap:8px;}
+.btn-icon{
+  width:34px;height:34px;border-radius:10px;border:1px solid var(--border);
+  background:rgba(124,58,237,0.05);color:var(--soft);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:all 0.2s;
+}
+.btn-icon:hover{background:rgba(124,58,237,0.15);color:var(--purple4);border-color:rgba(124,58,237,0.3);}
+.btn-back{
+  display:flex;align-items:center;gap:6px;
+  font-size:11px;color:var(--muted);cursor:pointer;
+  background:transparent;border:1px solid rgba(71,85,105,0.3);
+  border-radius:8px;padding:6px 12px;
+  transition:all 0.25s;font-family:inherit;
+}
+.btn-back:hover{color:var(--text);border-color:var(--border);}
+
+/* ══ MAIN ══ */
+.main{display:flex;flex:1;overflow:hidden;position:relative;z-index:1;}
+
+/* ══ SIDE PANEL ══ */
+.side-panel{display:none!important;}
+.side-panel::-webkit-scrollbar{width:3px;}
+.side-panel::-webkit-scrollbar-thumb{background:var(--bg3);border-radius:99px;}
+
+/* AI Identity Card */
+.ai-card{
+  padding:24px 20px 20px;
+  border-bottom:1px solid var(--border2);
+  position:relative;overflow:hidden;
+}
+.ai-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:80px;
+  background:linear-gradient(180deg,rgba(124,58,237,0.08),transparent);
+}
+.ai-avatar{
+  width:72px;height:72px;border-radius:20px;
+  background:linear-gradient(135deg,rgba(124,58,237,0.3),rgba(6,182,212,0.2));
+  border:1px solid rgba(124,58,237,0.3);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 14px;position:relative;
+  box-shadow:0 0 40px rgba(124,58,237,0.2),0 0 0 1px rgba(124,58,237,0.15);
+}
+.ai-avatar-ring{
+  position:absolute;inset:-4px;border-radius:24px;
+  border:1px solid rgba(124,58,237,0.2);
+  animation:ringPulse 3s ease-in-out infinite;
+}
+.ai-avatar-ring2{
+  position:absolute;inset:-8px;border-radius:28px;
+  border:1px solid rgba(124,58,237,0.1);
+  animation:ringPulse 3s ease-in-out infinite 1s;
+}
+@keyframes ringPulse{0%,100%{opacity:0.5;transform:scale(1);}50%{opacity:1;transform:scale(1.02);}}
+.ai-name-block{text-align:center;}
+.ai-name{font-family:'Tajawal',sans-serif;font-size:22px;font-weight:900;
+  background:linear-gradient(135deg,var(--purple4),var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.ai-title{font-size:11px;color:var(--muted);letter-spacing:0.8px;margin-top:2px;}
+.ai-status{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  margin-top:10px;
+}
+.status-badge{
+  display:flex;align-items:center;gap:5px;
+  font-size:10px;color:var(--green);
+  background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);
+  padding:4px 10px;border-radius:99px;
+}
+
+/* Voice Bars */
+.voice-bars{
+  display:flex;align-items:flex-end;justify-content:center;gap:3px;
+  height:22px;margin-top:12px;opacity:0;transition:opacity 0.4s;
+}
+.voice-bars.active{opacity:1;}
+.vb{width:3px;border-radius:2px;background:linear-gradient(to top,var(--purple),var(--cyan));}
+.vb:nth-child(1){animation:vbWave 1s ease-in-out infinite;height:6px;}
+.vb:nth-child(2){animation:vbWave 1s ease-in-out 0.1s infinite;height:14px;}
+.vb:nth-child(3){animation:vbWave 1s ease-in-out 0.2s infinite;height:20px;}
+.vb:nth-child(4){animation:vbWave 1s ease-in-out 0.3s infinite;height:16px;}
+.vb:nth-child(5){animation:vbWave 1s ease-in-out 0.4s infinite;height:10px;}
+.vb:nth-child(6){animation:vbWave 1s ease-in-out 0.5s infinite;height:18px;}
+.vb:nth-child(7){animation:vbWave 1s ease-in-out 0.6s infinite;height:12px;}
+@keyframes vbWave{0%,100%{transform:scaleY(0.4);}50%{transform:scaleY(1);}}
+
+/* Stats Row */
+.stats-row{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;
+  padding:16px 20px;border-bottom:1px solid var(--border2);
+}
+.stat-item{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  padding:10px 6px;border-radius:12px;
+  background:rgba(124,58,237,0.05);border:1px solid var(--border2);
+}
+.stat-num{font-family:'Tajawal',sans-serif;font-size:16px;font-weight:800;color:var(--purple4);}
+.stat-lbl{font-size:9px;color:var(--muted);text-align:center;letter-spacing:0.3px;}
+
+/* Capabilities */
+.section-block{padding:16px 20px;border-bottom:1px solid var(--border2);}
+.section-title{
+  font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:7px;
+}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border2);}
+.cap-list{display:flex;flex-direction:column;gap:7px;}
+.cap-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px;border-radius:10px;
+  background:rgba(124,58,237,0.04);border:1px solid var(--border2);
+  font-size:11.5px;color:var(--softer);
+  transition:all 0.2s;cursor:default;
+}
+.cap-item:hover{background:rgba(124,58,237,0.1);border-color:rgba(124,58,237,0.25);color:var(--text);}
+.cap-icon{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+/* Languages */
+.lang-row{display:flex;flex-wrap:wrap;gap:6px;}
+.lang-tag{
+  font-size:10px;font-weight:600;
+  padding:4px 10px;border-radius:99px;
+  border:1px solid;
+}
+.lang-tag.ar{background:rgba(124,58,237,0.1);border-color:rgba(124,58,237,0.3);color:var(--purple4);}
+.lang-tag.dz{background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.25);color:var(--green);}
+.lang-tag.fr{background:rgba(6,182,212,0.08);border-color:rgba(6,182,212,0.25);color:var(--cyan);}
+.lang-tag.en{background:rgba(245,158,11,0.08);border-color:rgba(245,158,11,0.25);color:var(--amber);}
+
+/* Quick Topics */
+.topic-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.topic-btn{
+  padding:9px 10px;border-radius:10px;font-size:10.5px;
+  background:rgba(124,58,237,0.06);border:1px solid var(--border2);
+  color:var(--soft);cursor:pointer;transition:all 0.2s;
+  font-family:'IBM Plex Sans Arabic',sans-serif;text-align:center;
+  line-height:1.4;
+}
+.topic-btn:hover{background:rgba(124,58,237,0.16);border-color:rgba(124,58,237,0.3);color:var(--purple4);transform:translateY(-1px);}
+
+/* Center Info */
+.center-info{padding:16px 20px;}
+.info-item{display:flex;align-items:flex-start;gap:9px;margin-bottom:10px;}
+.info-icon{width:26px;height:26px;border-radius:7px;background:rgba(124,58,237,0.1);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.info-text{font-size:11px;color:var(--soft);line-height:1.6;}
+.info-text strong{color:var(--softer);display:block;font-size:10px;letter-spacing:0.3px;}
+
+/* TTS Control */
+.tts-control{
+  margin:0 20px 16px;padding:12px 14px;
+  border-radius:12px;background:rgba(124,58,237,0.06);
+  border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.tts-label{font-size:11px;color:var(--soft);display:flex;align-items:center;gap:7px;}
+.sw{width:36px;height:20px;border-radius:99px;background:var(--bg3);border:1px solid rgba(71,85,105,0.4);position:relative;cursor:pointer;transition:background 0.3s,border-color 0.3s;}
+.sw.on{background:var(--purple2);border-color:var(--purple);}
+.sw::after{content:'';position:absolute;top:3px;right:3px;width:12px;height:12px;border-radius:50%;background:#fff;transition:transform 0.3s;}
+.sw.on::after{transform:translateX(-16px);}
+
+/* ══ CHAT PANEL ══ */
+.chat-panel{flex:1;display:flex;flex-direction:column;background:var(--bg);overflow:hidden;}
+
+/* ══ MESSAGES ══ */
+.messages{
+  flex:1;overflow-y:auto;padding:28px 32px;
+  display:flex;flex-direction:column;gap:20px;
+  scroll-behavior:smooth;
+}
+.messages::-webkit-scrollbar{width:4px;}
+.messages::-webkit-scrollbar-track{background:transparent;}
+.messages::-webkit-scrollbar-thumb{background:rgba(124,58,237,0.2);border-radius:99px;}
+
+/* Welcome */
+.welcome{margin:auto;max-width:520px;text-align:center;padding:32px 20px;}
+.welcome-glow{
+  width:90px;height:90px;border-radius:28px;
+  background:linear-gradient(135deg,rgba(124,58,237,0.2),rgba(6,182,212,0.1));
+  border:1px solid rgba(124,58,237,0.3);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 22px;position:relative;
+  box-shadow:0 0 60px rgba(124,58,237,0.15);
+  animation:welcomeGlow 3s ease-in-out infinite;
+}
+@keyframes welcomeGlow{0%,100%{box-shadow:0 0 60px rgba(124,58,237,0.15);}50%{box-shadow:0 0 80px rgba(124,58,237,0.3),0 0 120px rgba(6,182,212,0.1);}}
+.welcome-glow::before{
+  content:'';position:absolute;inset:-1px;border-radius:29px;
+  background:linear-gradient(135deg,rgba(124,58,237,0.4),rgba(6,182,212,0.2),transparent);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;padding:1px;
+}
+.welcome-h{font-family:'Tajawal',sans-serif;font-size:28px;font-weight:900;margin-bottom:10px;line-height:1.2;}
+.welcome-h span{background:linear-gradient(135deg,var(--purple4),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.welcome-p{font-size:13px;color:var(--soft);line-height:2;margin-bottom:26px;}
+.quick-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;}
+.qbtn{
+  font-size:11.5px;padding:8px 16px;border-radius:99px;
+  background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);
+  color:var(--purple4);cursor:pointer;transition:all 0.25s;
+  font-family:'IBM Plex Sans Arabic',sans-serif;
+}
+.qbtn:hover{background:rgba(124,58,237,0.2);border-color:rgba(124,58,237,0.45);transform:translateY(-2px);box-shadow:0 4px 16px rgba(124,58,237,0.15);}
+
+/* Messages */
+.msg{display:flex;gap:12px;animation:msgIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both;}
+@keyframes msgIn{from{opacity:0;transform:translateY(18px) scale(0.97);}to{opacity:1;transform:translateY(0) scale(1);}}
+.msg.user{flex-direction:row-reverse;}
+.msg-av{width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.msg-av.ai{background:linear-gradient(135deg,var(--purple2),var(--purple));box-shadow:0 0 16px rgba(124,58,237,0.35);}
+.msg-av.user{background:linear-gradient(135deg,var(--bg3),var(--bg2));border:1px solid var(--border);}
+.msg-body{max-width:70%;}
+.bubble{
+  padding:13px 17px;border-radius:18px;
+  font-size:13.5px;line-height:1.85;
+}
+.bubble.ai{
+  background:rgba(8,15,30,0.95);
+  border:1px solid var(--border);
+  border-top-right-radius:5px;
+  color:var(--softer);
+  box-shadow:0 4px 20px rgba(0,0,0,0.3);
+}
+.bubble.user{
+  background:linear-gradient(135deg,rgba(124,58,237,0.22),rgba(91,33,182,0.15));
+  border:1px solid rgba(124,58,237,0.28);
+  border-top-left-radius:5px;
+  color:var(--text);
+}
+.msg-meta{font-size:10px;color:var(--muted);margin-top:4px;padding:0 4px;}
+.msg.user .msg-meta{text-align:right;}
+
+/* Typing */
+.typing-indicator{display:flex;align-items:center;gap:5px;padding:4px 2px;}
+.typing-indicator span{width:7px;height:7px;border-radius:50%;background:var(--purple3);animation:typingBounce 1.4s ease-in-out infinite;}
+.typing-indicator span:nth-child(2){animation-delay:0.2s;}
+.typing-indicator span:nth-child(3){animation-delay:0.4s;}
+@keyframes typingBounce{0%,80%,100%{opacity:0.3;transform:scale(0.7);}40%{opacity:1;transform:scale(1.1);}}
+
+/* ══ INPUT AREA ══ */
+.input-zone{
+  padding:14px 24px 18px;
+  background:rgba(4,8,15,0.95);
+  border-top:1px solid var(--border);
+  backdrop-filter:blur(24px);
+  flex-shrink:0;
+}
+.input-wrap{
+  display:flex;align-items:flex-end;gap:10px;
+  background:var(--bg3);
+  border:1px solid var(--border);border-radius:var(--r2);
+  padding:10px 12px;
+  transition:border-color 0.3s,box-shadow 0.3s;
+}
+.input-wrap:focus-within{
+  border-color:rgba(124,58,237,0.45);
+  box-shadow:0 0 0 3px rgba(124,58,237,0.07),0 4px 24px rgba(124,58,237,0.1);
+}
+#userInput{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--text);font-family:'IBM Plex Sans Arabic',sans-serif;
+  font-size:14px;resize:none;max-height:120px;line-height:1.7;
+  padding:4px 6px;
+}
+#userInput::placeholder{color:var(--muted);}
+.input-actions{display:flex;align-items:center;gap:7px;}
+.ibtn{
+  width:38px;height:38px;border-radius:11px;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.25s;flex-shrink:0;
+}
+.ibtn.mic{background:rgba(124,58,237,0.1);color:var(--purple3);}
+.ibtn.mic:hover{background:rgba(124,58,237,0.2);}
+.ibtn.mic.rec{background:rgba(244,63,94,0.15);color:#f43f5e;animation:micGlow 1s infinite;}
+@keyframes micGlow{0%,100%{box-shadow:0 0 0 0 rgba(244,63,94,0.3);}50%{box-shadow:0 0 0 8px rgba(244,63,94,0);}}
+.ibtn.send{background:linear-gradient(135deg,var(--purple2),var(--purple));color:#fff;}
+.ibtn.send:hover{filter:brightness(1.2);transform:scale(1.06);box-shadow:0 4px 16px rgba(124,58,237,0.4);}
+.ibtn.send:disabled{opacity:0.35;cursor:not-allowed;transform:none;box-shadow:none;}
+.input-hint{font-size:10px;color:var(--muted);margin-top:7px;padding:0 4px;display:flex;align-items:center;justify-content:space-between;}
+.hint-shortcuts{display:flex;align-items:center;gap:10px;}
+.kbd{
+  font-size:9px;padding:2px 6px;border-radius:4px;
+  background:rgba(71,85,105,0.2);border:1px solid rgba(71,85,105,0.3);
+  color:var(--muted);
+}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:900px){
+  .side-panel{width:260px;}
+  .stats-row{grid-template-columns:1fr 1fr;}
+}
+@media(max-width:700px){
+  .side-panel{display:none;}
+  .messages{padding:16px;}
+}
+</style>
+</head>
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+<div class="orb orb3"></div>
+<div class="grid-lines"></div>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+      </svg>
+    </div>
+    <div class="logo-text">
+      <div class="logo-main"><span>موهبتي</span> مستقبلي</div>
+      <div class="logo-sub">AI Educational Portal</div>
+    </div>
+  </div>
+
+  <div class="header-center">
+    <div class="model-badge">
+      <span class="dot"></span>
+      Gemini 2.0 Flash — وئام AI
+    </div>
+  </div>
+
+  <div class="header-actions">
+    <button class="btn-back" onclick="window.history.back()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      العودة
+    </button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- SIDE PANEL REMOVED -->
+  <div class="side-panel" style="display:none!important">
+
+    <!-- AI Identity -->
+    <div class="ai-card">
+      <div class="ai-avatar">
+        <div class="ai-avatar-ring"></div>
+        <div class="ai-avatar-ring2"></div>
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <defs>
+            <linearGradient id="aiGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#a78bfa"/>
+              <stop offset="100%" stop-color="#06b6d4"/>
+            </linearGradient>
+          </defs>
+          <circle cx="12" cy="8" r="4" stroke="url(#aiGrad)" stroke-width="1.5"/>
+          <path d="M6 20c0-3.31 2.69-6 6-6s6 2.69 6 6" stroke="url(#aiGrad)" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="18" cy="8" r="2" stroke="url(#aiGrad)" stroke-width="1.5"/>
+          <circle cx="6" cy="8" r="2" stroke="url(#aiGrad)" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div class="ai-name-block">
+        <div class="ai-name">وئام</div>
+        <div class="ai-title">المساعد التربوي الذكي</div>
+        <div class="ai-status">
+          <div class="status-badge">
+            <span class="dot"></span>
+            متاح الآن
+          </div>
+        </div>
+      </div>
+      <div class="voice-bars" id="voiceViz">
+        <div class="vb"></div><div class="vb"></div><div class="vb"></div>
+        <div class="vb"></div><div class="vb"></div><div class="vb"></div>
+        <div class="vb"></div>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-num">15</div>
+        <div class="stat-lbl">بوابة علمية</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">3+</div>
+        <div class="stat-lbl">لغات</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">∞</div>
+        <div class="stat-lbl">محادثات</div>
+      </div>
+    </div>
+
+    <!-- Languages -->
+    <div class="section-block">
+      <div class="section-title">اللغات</div>
+      <div class="lang-row">
+        <span class="lang-tag ar">العربية الفصحى</span>
+        <span class="lang-tag dz">الدارجة الجزائرية</span>
+        <span class="lang-tag fr">Français</span>
+        <span class="lang-tag en">English</span>
+      </div>
+    </div>
+
+    <!-- Capabilities -->
+    <div class="section-block">
+      <div class="section-title">التخصصات</div>
+      <div class="cap-list">
+        <div class="cap-item">
+          <div class="cap-icon" style="background:rgba(124,58,237,0.15);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          الكشف عن الموهبة والتشخيص
+        </div>
+        <div class="cap-item">
+          <div class="cap-icon" style="background:rgba(6,182,212,0.12);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+          </div>
+          نظريات التعلم والتربية
+        </div>
+        <div class="cap-item">
+          <div class="cap-icon" style="background:rgba(16,185,129,0.12);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
+          </div>
+          الإرشاد النفسي والأسري
+        </div>
+        <div class="cap-item">
+          <div class="cap-icon" style="background:rgba(245,158,11,0.12);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+          </div>
+          البرامج الفردية والإثراء
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Topics -->
+    <div class="section-block">
+      <div class="section-title">أسئلة سريعة</div>
+      <div class="topic-grid">
+        <button class="topic-btn" onclick="quickAsk('كيفاش نعرف واش ولدي موهوب؟')">🔍 كشف الموهبة</button>
+        <button class="topic-btn" onclick="quickAsk('شرح لي نظرية غاردنر للذكاءات المتعددة')">🧠 نظرية غاردنر</button>
+        <button class="topic-btn" onclick="quickAsk('كيفاش نسجل في مركز موهبتي مستقبلي؟')">📋 التسجيل</button>
+        <button class="topic-btn" onclick="quickAsk('علاش الكشف المبكر مهم للطفل؟')">⭐ أهمية الكشف</button>
+        <button class="topic-btn" onclick="quickAsk('ما هو نموذج رنزولي للموهبة؟')">📐 نموذج رنزولي</button>
+        <button class="topic-btn" onclick="quickAsk('Comment identifier un enfant surdoué?')">🇫🇷 Surdoués</button>
+      </div>
+    </div>
+
+    <!-- Center Info -->
+    <div class="center-info">
+      <div class="section-title" style="margin-bottom:12px;">معلومات المركز</div>
+      <div class="info-item">
+        <div class="info-icon">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+        <div class="info-text"><strong>الموقع</strong>ولاية المدية، الجزائر</div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <div class="info-text"><strong>البريد الإلكتروني</strong>mawhibatimostaqbali@gmail.com</div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="info-text"><strong>أوقات العمل</strong>الأحد — الخميس | 9:00 - 17:00</div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
+        <div class="info-text"><strong>الفئة المستهدفة</strong>الأطفال من 3 إلى 13 سنة</div>
+      </div>
+    </div>
+
+    <!-- TTS Toggle -->
+    <div class="tts-control">
+      <div class="tts-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+        صوت المساعد
+      </div>
+      <div class="sw on" id="ttsToggle" onclick="toggleTTS()"></div>
+    </div>
+
+  </div>
+
+  <!-- CHAT PANEL -->
+  <div class="chat-panel">
+    <div class="messages" id="messages">
+
+      <!-- Welcome -->
+      <div class="welcome" id="welcomeCard">
+        <div class="welcome-glow">
+          <svg width="38" height="38" viewBox="0 0 24 24" fill="none">
+            <defs>
+              <linearGradient id="wg" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#a78bfa"/>
+                <stop offset="100%" stop-color="#06b6d4"/>
+              </linearGradient>
+            </defs>
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" stroke="url(#wg)" stroke-width="1.5" fill="none"/>
+          </svg>
+        </div>
+        <div class="welcome-h">أهلاً، أنا <span>وئام</span> 👋</div>
+        <div class="welcome-p">
+          مساعدك الذكي من <strong style="color:var(--purple4)">مركز موهبتي مستقبلي</strong><br>
+          نجاوبك بالدارجة الجزائرية، العربية، أو الفرنسية.<br>
+          متخصص في الكشف عن الموهبة، التربية، والإرشاد النفسي.
+        </div>
+        <div class="quick-grid">
+          <button class="qbtn" onclick="quickAsk('كيفاش نعرف واش ولدي موهوب؟')">كيفاش نعرف واش ولدي موهوب؟</button>
+          <button class="qbtn" onclick="quickAsk('شرح لي نموذج رنزولي للموهبة')">نموذج رنزولي</button>
+          <button class="qbtn" onclick="quickAsk('علاش الكشف المبكر مهم؟')">أهمية الكشف المبكر</button>
+          <button class="qbtn" onclick="quickAsk('كيفاش نسجل في مركز موهبتي مستقبلي؟')">كيفاش نسجل في المركز؟</button>
+          <button class="qbtn" onclick="quickAsk('ما هي نظرية غاردنر للذكاءات المتعددة؟')">نظرية غاردنر</button>
+          <button class="qbtn" onclick="quickAsk('Comment détecter les enfants surdoués?')">Enfants surdoués</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- INPUT -->
+    <div class="input-zone">
+      <div class="input-wrap">
+        <textarea id="userInput" rows="1"
+          placeholder="اسألني بالدارجة، العربية، أو الفرنسية..."
+          oninput="autoResize(this)"
+          onkeydown="handleKey(event)"></textarea>
+        <div class="input-actions">
+          <button class="ibtn mic" id="micBtn" onclick="toggleMic()" title="تحدث بالصوت">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg>
+          </button>
+          <button class="ibtn send" id="sendBtn" onclick="sendMsg()" title="إرسال">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="input-hint">
+        <span>مدعوم بـ Gemini 2.0 Flash</span>
+        <div class="hint-shortcuts">
+          <span><kbd class="kbd">Enter</kbd> إرسال</span>
+          <span><kbd class="kbd">Shift+Enter</kbd> سطر جديد</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  وئام — AI Portal | موهبتي مستقبلي
+// ═══════════════════════════════════════════════════
+
+const API_KEY = "AQ.Ab8RN6LtqDeImkUQ-QSO1lhwwJpLsPGRAVSan6vo9oN3vi9a3g";
+let ttsEnabled = true;
+let isRecording = false;
+let recognition = null;
+let isSpeaking = false;
+let conversationHistory = [];
+
+// ── System Prompt ──────────────────────────────────
+const SYSTEM_PROMPT = `أنت "وئام"، المساعد الذكي لمركز موهبتي مستقبلي — مركز علمي تربوي متخصص في الكشف عن الموهبة بولاية المدية، الجزائر.
+
+## هويتك الثابتة:
+- اسمك: وئام
+- أنت مساعد تربوي ذكي، دافئ، علمي، محترف
+- لا تعترف أبداً بأنك نموذج Gemini أو أي نموذج آخر — أنت "وئام" فقط
+- إذا سألك أحد "من أنت؟" أو "ما هو النموذج اللي تستعمله؟" قل فقط: "أنا وئام، المساعد الذكي لمركز موهبتي مستقبلي"
+
+## اللغة — مهم جداً:
+- إذا تكلم المستخدم بالدارجة الجزائرية: جاوب بالدارجة الجزائرية (مش المغربية ومش التونسية)
+  - كلمات جزائرية: واش، كيفاش، راني، راح، بزاف، ولدي، نتاع، كيما، هكذا، علاش، وين، كاش، بصح، ما عندوش، يخدم، نحوس، دابا، بكري
+  - لا تستعمل: كلمات مغربية مثل "دابا واحد"، "مزيان"، "كتبغي"
+- إذا تكلم بالعربية الفصحى: جاوب بالعربية الفصحى
+- إذا تكلم بالفرنسية: جاوب بالفرنسية
+- إذا خلط: خلط معه بنفس النسبة
+- أجيبك بشكل طبيعي ودافئ، مش روبوت بارد
+
+## معلومات مركز موهبتي مستقبلي:
+- مركز علمي تربوي في ولاية المدية، الجزائر
+- متخصص في الكشف المبكر عن الأطفال الموهوبين من 3 إلى 13 سنة
+- الخدمات: كشف وتشخيص، تقييم شامل معرفي وعاطفي واجتماعي وإبداعي، برامج فردية (IEP)، إرشاد أسري، متابعة دورية
+- 15 بوابة علمية متخصصة في مختلف أنواع الذكاء
+- التسجيل: عبر الموقع الإلكتروني — إنشاء حساب ثم ملء الاستبيان
+- البريد الإلكتروني: mawhibatimostaqbali@gmail.com
+- أوقات العمل: الأحد إلى الخميس 9:00 - 17:00
+
+## قاعدة المعرفة العلمية:
+
+### نظريات الموهبة الرئيسية:
+1. نموذج رنزولي (1978): الموهبة = قدرة فوق المتوسط + إبداع + التزام بالمهمة
+2. نظرية غاردنر للذكاءات المتعددة (1983): 9 أنواع — لغوي، منطقي-رياضي، موسيقي، جسمي-حركي، مكاني، طبيعي، اجتماعي، ذاتي، وجودي
+3. تصنيف مارلاند (1972): 6 أبعاد — أكاديمي، إبداعي، قيادي، بصري-أدائي، حركي، ذكاء عام
+4. نموذج تاننباوم (1983): الموهبة الفعلية مقابل الكامنة — دور الأسرة والمجتمع
+5. نموذج فريمان (1991): السياق البيئي وتفاعل الأسرة
+6. الثلاثية التوسعية رنزولي وريس (1994): الإثراء المدرسي
+
+### علامات الموهبة عند الأطفال:
+- تعلم سريع جداً وذاكرة استثنائية
+- فضول لا يتوقف وأسئلة عميقة
+- مفردات لغوية متقدمة لسنه
+- حل مشكلات بطرق إبداعية غير مألوفة
+- اهتمام مكثف بموضوع معين
+- تفضيل رفاق أكبر سناً منه
+- حساسية عاطفية مرتفعة
+- اهتمام مبكر بالعدالة والأخلاق والأسئلة الكبيرة
+
+### الكشف المبكر:
+- الفترة الذهبية: 3 إلى 7 سنوات
+- أدوات التقييم: مقياس ستانفورد-بينيه، ويكسلر للأطفال، مقاييس الموهبة المتخصصة
+- مستويات التقييم: المعرفي، العاطفي، الاجتماعي، الإبداعي
+- المشاركون في التقييم: الطفل + الوالدان + المعلمون + المختصون
+
+### نظريات التعلم:
+- السلوكية (بافلوف، سكينر): التعلم بالتكييف والتعزيز الإيجابي
+- البنائية (بياجيه، فيقوتسكي): بناء المعرفة، منطقة التطور القريب ZPD
+- التعلم الاجتماعي (باندورا): النمذجة والمحاكاة، الكفاءة الذاتية
+- الإنسانية (ماسلو، روجرز): هرم الاحتياجات، التحقيق الذاتي
+
+### الإرشاد التربوي والنفسي:
+- نظرية السمات والعوامل (بارسونز): توافق الفرد مع المهنة
+- النماذج التطورية (سوبر): مراحل الحياة المهنية
+- العلاج المعرفي السلوكي (إليس، بيك): إعادة البناء المعرفي
+- العلاج باللعب (أكسلين): إرشاد الأطفال عبر اللعب
+
+### التحديات الشائعة عند الموهوبين:
+- الكمالية المفرطة والخوف من الفشل
+- الملل الأكاديمي والإحباط
+- العزلة الاجتماعية
+- الموهوبون ذوو صعوبات التعلم (2e gifted)
+
+## أسلوب الإجابة:
+- بالدارجة الجزائرية: استخدم لهجة دافئة وطبيعية، كأنك تحكي مع ولي أمر جزائري
+- بالعربية: احترافي ولكن بسيط ومفهوم
+- أضف أمثلة عملية وتطبيقية دائماً
+- للأسئلة البسيطة: جاوب بإيجاز
+- للأسئلة العلمية: فصّل وأشرح
+- عند السؤال عن التسجيل: وجّه للموقع وأعطِ البريد الإلكتروني
+- كن محفزاً ومشجعاً دائماً`;
+
+// ── TTS ────────────────────────────────────────────
+function speak(text) {
+  if (!ttsEnabled || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.lang = 'ar-DZ';
+  utter.rate = 0.9;
+  utter.pitch = 1.05;
+  const voices = speechSynthesis.getVoices();
+  const arVoice = voices.find(v => v.lang.startsWith('ar')) || voices.find(v => v.lang.includes('ar'));
+  if (arVoice) utter.voice = arVoice;
+  utter.onstart = () => {
+    isSpeaking = true;
+    document.getElementById('voiceViz').classList.add('active');
+  };
+  utter.onend = () => {
+    isSpeaking = false;
+    document.getElementById('voiceViz').classList.remove('active');
+  };
+  speechSynthesis.speak(utter);
+}
+
+function toggleTTS() {
+  ttsEnabled = !ttsEnabled;
+  document.getElementById('ttsToggle').classList.toggle('on', ttsEnabled);
+  if (!ttsEnabled && window.speechSynthesis) window.speechSynthesis.cancel();
+}
+
+// ── STT ────────────────────────────────────────────
+function toggleMic() {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    addMsg('ai', 'عذراً، المتصفح ما يدعمش التعرف على الصوت. جرّب Chrome.');
+    return;
+  }
+  if (isRecording) { recognition.stop(); return; }
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SR();
+  recognition.lang = 'ar-DZ';
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.onstart = () => {
+    isRecording = true;
+    document.getElementById('micBtn').classList.add('rec');
+  };
+  recognition.onend = () => {
+    isRecording = false;
+    document.getElementById('micBtn').classList.remove('rec');
+  };
+  recognition.onresult = (e) => {
+    const t = e.results[0][0].transcript;
+    document.getElementById('userInput').value = t;
+    setTimeout(() => sendMsg(), 300);
+  };
+  recognition.onerror = () => {
+    isRecording = false;
+    document.getElementById('micBtn').classList.remove('rec');
+  };
+  recognition.start();
+}
+
+// ── Chat UI ─────────────────────────────────────────
+function addMsg(role, text) {
+  const wc = document.getElementById('welcomeCard');
+  if (wc) wc.style.display = 'none';
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  const time = new Date().toLocaleTimeString('ar-DZ', { hour: '2-digit', minute: '2-digit' });
+  if (role === 'ai') {
+    div.innerHTML = `
+      <div class="msg-av ai">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </div>
+      <div class="msg-body">
+        <div class="bubble ai">${formatText(text)}</div>
+        <div class="msg-meta">${time} · وئام</div>
+      </div>`;
+  } else {
+    div.innerHTML = `
+      <div class="msg-av user">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.58-7 8-7s8 3 8 7"/></svg>
+      </div>
+      <div class="msg-body">
+        <div class="bubble user">${text.replace(/\n/g,'<br>')}</div>
+        <div class="msg-meta">${time}</div>
+      </div>`;
+  }
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+function formatText(text) {
+  // Bold **text**
+  text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  // Italic *text*
+  text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+  // Newlines
+  text = text.replace(/\n/g, '<br>');
+  return text;
+}
+
+function addTyping() {
+  const wc = document.getElementById('welcomeCard');
+  if (wc) wc.style.display = 'none';
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg ai';
+  div.id = 'typingInd';
+  div.innerHTML = `
+    <div class="msg-av ai">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    </div>
+    <div class="msg-body">
+      <div class="bubble ai"><div class="typing-indicator"><span></span><span></span><span></span></div></div>
+    </div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typingInd');
+  if (t) t.remove();
+}
+
+// ── Send Message ────────────────────────────────────
+async function sendMsg() {
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('sendBtn').disabled = true;
+
+  addMsg('user', text);
+  conversationHistory.push({ role: 'user', content: text });
+  addTyping();
+
+  try {
+    const history = conversationHistory.slice(-12);
+    const geminiContents = [];
+    let systemInjected = false;
+    for (const m of history) {
+      if (m.role === 'user' && !systemInjected) {
+        geminiContents.push({ role: 'user', parts: [{ text: SYSTEM_PROMPT + '\n\n---\n\n' + m.content }] });
+        systemInjected = true;
+      } else {
+        geminiContents.push({
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: m.content }]
+        });
+      }
+    }
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: geminiContents,
+        generationConfig: {
+          temperature: 0.85,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 1024,
+        },
+        safetySettings: [
+          { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+          { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" }
+        ]
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err?.error?.message || 'HTTP ' + res.status);
+    }
+
+    const data = await res.json();
+    removeTyping();
+    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'عذراً، ما فهمتش — جرّب مرة أخرى.';
+    conversationHistory.push({ role: 'assistant', content: reply });
+    addMsg('ai', reply);
+    if (ttsEnabled) speak(reply.substring(0, 300));
+
+  } catch(e) {
+    removeTyping();
+    console.error('AI Error:', e);
+    const msg = e.message || '';
+    if (msg.includes('API_KEY_INVALID') || msg.includes('400') || msg.includes('401')) {
+      addMsg('ai', '⚠️ **مشكلة في المفتاح**\nالمفتاح غير صحيح أو انتهت صلاحيته.\nروح على aistudio.google.com/apikey وجدّد المفتاح.');
+    } else if (msg.includes('429') || msg.includes('quota')) {
+      addMsg('ai', '⏳ **تجاوزت الحد اليومي**\nانتهى quota المجاني لهذا اليوم. جرّب غداً أو فعّل الفوترة.');
+    } else {
+      addMsg('ai', '❌ خطأ في الاتصال: ' + msg + '\n\nتأكد من الاتصال بالإنترنت وحاول مرة أخرى.');
+    }
+  }
+
+  document.getElementById('sendBtn').disabled = false;
+  input.focus();
+}
+
+function quickAsk(text) {
+  document.getElementById('userInput').value = text;
+  sendMsg();
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMsg();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+// ── Init ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.speechSynthesis) {
+    speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+  }
+  // Start TTS toggle as ON
+  document.getElementById('ttsToggle').classList.add('on');
+  document.getElementById('userInput').focus();
+});
+</script>
+</body>
+</html>
